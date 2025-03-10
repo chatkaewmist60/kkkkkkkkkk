@@ -1,0 +1,65 @@
+generator client {
+     provider = "prisma-client-js"
+}
+
+datasource db {
+     provider = "mysql"
+     url      = env("DATABASE_URL")
+}
+
+model User {
+     id       Int      @id @default(autoincrement())
+     name     String
+     email    String   @unique
+     password String
+     role     String   @default("user")
+     trips    Trip[]
+     reviews  Review[]
+}
+
+model Trip {
+     id           Int               @id @default(autoincrement())
+     userId       Int
+     name         String
+     startDate    DateTime
+     endDate      DateTime
+     budget       Float
+     user         User              @relation(fields: [userId], references: [id])
+     destinations TripDestination[]
+}
+
+model Destination {
+     id          Int               @id @default(autoincrement())
+     name        String
+     location    String
+     description String?
+     trips       TripDestination[]
+     reviews     Review[]
+}
+
+model TripDestination {
+     tripId        Int
+     destinationId Int
+     order         Int
+     trip          Trip        @relation(fields: [tripId], references: [id])
+     destination   Destination @relation(fields: [destinationId], references: [id])
+
+     @@id([tripId, destinationId])
+}
+
+model Review {
+     id            Int         @id @default(autoincrement())
+     userId        Int
+     destinationId Int
+     rating        Int
+     comment       String?
+     user          User        @relation(fields: [userId], references: [id])
+     destination   Destination @relation(fields: [destinationId], references: [id])
+}
+
+model Holiday {
+     id      Int      @id @default(autoincrement())
+     name    String
+     date    DateTime
+     country String
+}
